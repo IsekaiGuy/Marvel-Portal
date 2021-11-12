@@ -1,6 +1,5 @@
 class MarvelService {
   #apiBase = "https://gateway.marvel.com:443/v1/public/";
-  #apiKey = "apikey=f730f3724ec0309e4fe9a277dbe9d532";
 
   getResource = async (url) => {
     let res = await fetch(url);
@@ -13,14 +12,16 @@ class MarvelService {
 
   getAllCharacters = async () => {
     const res = await this.getResource(
-      `${this.#apiBase}characters?limit=9&offset=210&${this.#apiKey}`
+      `${this.#apiBase}characters?limit=9&offset=210&${
+        process.env.REACT_APP_API_KEY
+      }`
     );
     return res.data.results.map(this._transformCharacter);
   };
 
   getCharacter = async (id) => {
     const res = await this.getResource(
-      `${this.#apiBase}characters/${id}?${this.#apiKey}`
+      `${this.#apiBase}characters/${id}?${process.env.REACT_APP_API_KEY}`
     );
     return this._transformCharacter(res.data.results[0]);
   };
@@ -29,8 +30,8 @@ class MarvelService {
     return {
       name: char.name,
       description:
-        char.description.length > 30
-          ? char.description.slice(0, 30) + "(...)"
+        char.description.length > 60
+          ? char.description.slice(0, 60) + "(...)"
           : char.description || "Description unavaliable",
       thumbnail: char.thumbnail.path + "." + char.thumbnail.extension,
       homepage: char.urls[0].url,
