@@ -1,5 +1,5 @@
 import { Component } from "react";
-import MarvelService from "../../services/MarvelService";
+import marvelService from "../../services/MarvelService";
 import Spinner from "../spinner/Spinner";
 import ErrorMessage from "../errorMessage/errorMessage";
 
@@ -7,8 +7,6 @@ import mjolnir from "../../resources/img/mjolnir.png";
 import "./randomChar.scss";
 
 class RandomChar extends Component {
-  marvelService = new MarvelService();
-
   state = {
     char: {},
     loading: true,
@@ -30,22 +28,17 @@ class RandomChar extends Component {
   updateChar = () => {
     const id = Math.floor(Math.random() * (1011400 - 1011000) + 1011000);
 
-    this.marvelService
-      .getCharacter(id)
-      .then(this.onCharLoaded)
-      .catch(this.onError);
+    marvelService.getCharacter(id).then(this.onCharLoaded).catch(this.onError);
   };
 
   render() {
     const { loading, char, error } = this.state;
-    const errorMessage = error ? <ErrorMessage /> : null;
+
     const spinner = loading ? <Spinner /> : null;
-    const content =
-      !loading || !error ? <View char={char} error={error} /> : null;
+    const content = !loading ? <View char={char} error={error} /> : null;
 
     return (
       <div className="randomchar">
-        {errorMessage}
         {spinner}
         {content}
         <div className="randomchar__static">
@@ -55,7 +48,7 @@ class RandomChar extends Component {
             Do you want to get to know him better?
           </p>
           <p className="randomchar__title">Or choose another one</p>
-          <button className="button button__main">
+          <button onClick={this.updateChar} className="button button__main">
             <div className="inner">try it</div>
           </button>
           <img src={mjolnir} alt="mjolnir" className="randomchar__decoration" />
@@ -67,19 +60,24 @@ class RandomChar extends Component {
 
 const View = ({ char, error }) => {
   const { name, description, thumbnail, homepage, wiki } = char;
-  const errorMargin = error ? { marginLeft: 30 } : { marginLeft: "inherit" };
 
   return (
     <div className="randomchar__block">
-      <img src={thumbnail} alt="Random character" className="randomchar__img" />
+      {error ? (
+        <ErrorMessage />
+      ) : (
+        <img
+          src={thumbnail}
+          alt="Random character"
+          className="randomchar__img"
+        />
+      )}
       <div className="randomchar__info">
-        <p style={errorMargin} className="randomchar__name">
-          {error ? "ERROR" : name}
-        </p>
-        <p style={errorMargin} className="randomchar__descr">
+        <p className="randomchar__name">{error ? "ERROR" : name}</p>
+        <p className="randomchar__descr">
           {error ? "Please, reload the page" : description}
         </p>
-        <div style={errorMargin} className="randomchar__btns">
+        <div className="randomchar__btns">
           <a href={homepage} className="button button__main">
             <div className="inner">{error ? "error" : "homepage"}</div>
           </a>
