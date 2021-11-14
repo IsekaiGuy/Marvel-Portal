@@ -84,7 +84,7 @@ const View = ({ char }) => {
           <li>"No comics found"</li>
         ) : (
           comics.map((item, i) => {
-            if (i > 9) return;
+            if (i > 9) return null;
             else {
               return (
                 <li key={i} className="char__comics-item">
