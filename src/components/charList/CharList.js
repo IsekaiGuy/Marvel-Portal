@@ -10,19 +10,40 @@ class CharList extends Component {
     charlist: [],
     loading: true,
     error: false,
+    newItemLoading: false,
+    offset: 210,
+    charEnded: false,
   };
 
   componentDidMount() {
-    this.onCharListLoaded(
-      marvelService
-        .getAllCharacters()
-        .then(this.onCharListLoaded)
-        .catch(this.onError)
-    );
+    this.onRequest();
   }
 
-  onCharListLoaded = (charlist) => {
-    this.setState({ charlist, loading: false });
+  onRequest = (offset) => {
+    this.onCharlistLoading();
+    marvelService
+      .getAllCharacters(offset)
+      .then(this.onCharListLoaded)
+      .catch(this.onError);
+  };
+
+  onCharlistLoading = () => {
+    this.setState({ newItemLoading: true });
+  };
+
+  onCharListLoaded = (newCharList) => {
+    let ended = false;
+    if (newCharList.length < 9) {
+      ended = true;
+    }
+
+    this.setState(({ charlist, offset }) => ({
+      charlist: [...charlist, ...newCharList],
+      loading: false,
+      newItemLoading: false,
+      offset: offset + 9,
+      charEnded: ended,
+    }));
   };
 
   onError = () => {
@@ -30,7 +51,7 @@ class CharList extends Component {
   };
 
   renderItems = (arr) => {
-    if (arr.length === 9) {
+    if (arr.length >= 9) {
       return arr.map((item) => {
         let cover = { objectFit: "cover" };
         if (
@@ -56,7 +77,8 @@ class CharList extends Component {
   };
 
   render() {
-    const { charlist, loading, error } = this.state;
+    const { charlist, loading, error, newItemLoading, offset, charEnded } =
+      this.state;
     const errorMessage = error ? (
       <li className="char__item" style={{ gridColumnStart: 2, height: 200 }}>
         <ErrorMessage />
@@ -77,7 +99,12 @@ class CharList extends Component {
           {spinner}
           {content}
         </ul>
-        <button className="button button__main button__long">
+        <button
+          style={charEnded ? { display: "none" } : { display: "block" }}
+          onClick={() => this.onRequest(offset)}
+          disabled={newItemLoading}
+          className="button button__main button__long"
+        >
           <div className="inner">{error ? "ERROR" : "load more"}</div>
         </button>
       </div>
