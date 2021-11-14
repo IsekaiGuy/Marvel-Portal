@@ -32,9 +32,20 @@ class CharList extends Component {
   renderItems = (arr) => {
     if (arr.length === 9) {
       return arr.map((item) => {
+        let cover = { objectFit: "cover" };
+        if (
+          item.thumbnail ===
+          "http://i.annihil.us/u/prod/marvel/i/mg/b/40/image_not_available.jpg"
+        ) {
+          cover = { objectFit: "unset" };
+        }
         return (
-          <li key={item.name} className="char__item">
-            <img src={item.thumbnail} alt="abyss" />
+          <li
+            key={item.id}
+            className="char__item"
+            onClick={() => this.props.onCharSelected(item.id)}
+          >
+            <img style={cover} src={item.thumbnail} alt={item.name} />
             <div className="char__name">{item.name}</div>
           </li>
         );
@@ -51,8 +62,13 @@ class CharList extends Component {
         <ErrorMessage />
       </li>
     ) : null;
-    const spinner = loading || charlist.length < 9 ? <Spinner /> : null;
-    const content = !loading || !error ? this.renderItems(charlist) : null;
+    const spinner = loading ? <Spinner /> : null;
+    const content =
+      !loading && !error && charlist.length > 8 ? (
+        this.renderItems(charlist)
+      ) : (
+        <Spinner />
+      );
 
     return (
       <div className="char__list">
