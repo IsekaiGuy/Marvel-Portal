@@ -1,4 +1,6 @@
 import { Component } from "react";
+import PropTypes from "prop-types";
+
 import marvelService from "../../services/MarvelService";
 import Spinner from "../spinner/Spinner";
 import ErrorMessage from "../errorMessage/errorMessage";
@@ -20,12 +22,10 @@ class CharList extends Component {
       this.onRequest();
     }
     window.addEventListener("scroll", this.onScroll);
-    console.log("MOUNTED");
   }
 
   componentWillUnmount() {
     window.removeEventListener("scroll", this.onScroll);
-    console.log("UNMOUNTED");
   }
 
   onScroll = () => {
@@ -37,7 +37,6 @@ class CharList extends Component {
     if (window.innerHeight + window.scrollY >= document.body.offsetHeight) {
       this.onCharlistLoading();
       this.onRequest(this.state.offset);
-      window.removeEventListener("scroll", this.onScroll);
     }
   };
 
@@ -132,5 +131,9 @@ class CharList extends Component {
     );
   }
 }
+
+CharList.propTypes = {
+  onCharSelected: PropTypes.func,
+};
 
 export default CharList;
