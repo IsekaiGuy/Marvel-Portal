@@ -8,6 +8,8 @@ import ErrorMessage from "../errorMessage/errorMessage";
 import "./charList.scss";
 
 class CharList extends Component {
+  #refsArr = [];
+
   state = {
     charlist: [],
     loading: true,
@@ -38,6 +40,15 @@ class CharList extends Component {
       this.onCharlistLoading();
       this.onRequest(this.state.offset);
     }
+  };
+
+  setRef = (ref) => {
+    this.#refsArr.push(ref);
+  };
+
+  focusElement = (index) => {
+    this.#refsArr.forEach((el) => el.classList.remove("char__item_selected"));
+    this.#refsArr[index].focus();
   };
 
   onRequest = (offset) => {
@@ -73,7 +84,7 @@ class CharList extends Component {
 
   renderItems = (arr) => {
     if (arr.length >= 9) {
-      return arr.map((item) => {
+      return arr.map((item, index) => {
         let cover = { objectFit: "cover" };
         if (
           item.thumbnail ===
@@ -83,9 +94,20 @@ class CharList extends Component {
         }
         return (
           <li
+            ref={this.setRef}
+            tabIndex={0}
             key={item.id}
             className="char__item"
-            onClick={() => this.props.onCharSelected(item.id)}
+            onClick={() => {
+              this.props.onCharSelected(item.id);
+              this.focusElement(index);
+            }}
+            onKeyPress={(e) => {
+              if (e.key === "Enter") {
+                this.props.onCharSelected(item.id);
+                this.focusElement(index);
+              }
+            }}
           >
             <img style={cover} src={item.thumbnail} alt={item.name} />
             <div className="char__name">{item.name}</div>
