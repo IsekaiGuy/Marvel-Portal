@@ -16,8 +16,30 @@ class CharList extends Component {
   };
 
   componentDidMount() {
-    this.onRequest();
+    if (this.state.offset < 219) {
+      this.onRequest();
+    }
+    window.addEventListener("scroll", this.onScroll);
+    console.log("MOUNTED");
   }
+
+  componentWillUnmount() {
+    window.removeEventListener("scroll", this.onScroll);
+    console.log("UNMOUNTED");
+  }
+
+  onScroll = () => {
+    if (this.state.offset < 219) return;
+    if (this.state.newItemLoading) return;
+    if (this.state.charEnded)
+      window.removeEventListener("scroll", this.onScroll);
+
+    if (window.innerHeight + window.scrollY >= document.body.offsetHeight) {
+      this.onCharlistLoading();
+      this.onRequest(this.state.offset);
+      window.removeEventListener("scroll", this.onScroll);
+    }
+  };
 
   onRequest = (offset) => {
     this.onCharlistLoading();
@@ -77,8 +99,7 @@ class CharList extends Component {
   };
 
   render() {
-    const { charlist, loading, error, newItemLoading, offset, charEnded } =
-      this.state;
+    const { charlist, loading, error, newItemLoading, charEnded } = this.state;
     const errorMessage = error ? (
       <li className="char__item" style={{ gridColumnStart: 2, height: 200 }}>
         <ErrorMessage />
@@ -101,7 +122,7 @@ class CharList extends Component {
         </ul>
         <button
           style={charEnded ? { display: "none" } : { display: "block" }}
-          onClick={() => this.onRequest(offset)}
+          // onClick={() => this.onRequest(offset)}
           disabled={newItemLoading}
           className="button button__main button__long"
         >
