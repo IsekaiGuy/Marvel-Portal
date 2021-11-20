@@ -1,4 +1,4 @@
-import { Component } from "react";
+import { useState, useEffect, useRef } from "react";
 import PropTypes from "prop-types";
 
 import marvelService from "../../services/MarvelService";
@@ -7,82 +7,71 @@ import ErrorMessage from "../errorMessage/errorMessage";
 
 import "./charList.scss";
 
-class CharList extends Component {
-  #refsArr = [];
+const CharList = ({ onCharSelected }) => {
+  const refsArr = useRef([]);
 
-  state = {
-    charlist: [],
-    loading: true,
-    error: false,
-    newItemLoading: false,
-    offset: 210,
-    charEnded: false,
-  };
+  // STATES
+  const [charlist, setCharlist] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
+  const [newItemLoading, setNewItemLoading] = useState(false);
+  const [offset, setOffset] = useState(1540);
+  const [charEnded, setCharEnded] = useState(false);
 
-  componentDidMount() {
-    if (this.state.offset < 219) {
-      this.onRequest();
-    }
-    window.addEventListener("scroll", this.onScroll);
-  }
-
-  componentWillUnmount() {
-    window.removeEventListener("scroll", this.onScroll);
-  }
-
-  onScroll = () => {
-    if (this.state.offset < 219) return;
-    if (this.state.newItemLoading) return;
-    if (this.state.charEnded)
-      window.removeEventListener("scroll", this.onScroll);
-
+  const onScroll = () => {
     if (window.innerHeight + window.scrollY >= document.body.offsetHeight) {
-      this.onCharlistLoading();
-      this.onRequest(this.state.offset);
+      setNewItemLoading(true);
+      window.removeEventListener("scroll", onScroll);
     }
+    if (charEnded) return window.removeEventListener("scroll", onScroll);
   };
 
-  setRef = (ref) => {
-    this.#refsArr.push(ref);
+  useEffect(() => {
+    onRequest();
+  }, []);
+
+  useEffect(() => {
+    if (offset >= 219) window.addEventListener("scroll", onScroll);
+    else return;
+  }, [offset]);
+
+  useEffect(() => {
+    if (newItemLoading) {
+      setNewItemLoading(false);
+      onRequest(offset);
+    }
+  }, [newItemLoading]);
+
+  const focusElement = (index) => {
+    refsArr.current.forEach((el) => el.classList.remove("char__item_selected"));
+    refsArr.current[index].focus();
   };
 
-  focusElement = (index) => {
-    this.#refsArr.forEach((el) => el.classList.remove("char__item_selected"));
-    this.#refsArr[index].focus();
-  };
-
-  onRequest = (offset) => {
-    this.onCharlistLoading();
+  const onRequest = (offset) => {
     marvelService
       .getAllCharacters(offset)
-      .then(this.onCharListLoaded)
-      .catch(this.onError);
+      .then(onCharListLoaded)
+      .catch(onError);
   };
 
-  onCharlistLoading = () => {
-    this.setState({ newItemLoading: true });
-  };
-
-  onCharListLoaded = (newCharList) => {
+  const onCharListLoaded = (newCharList) => {
     let ended = false;
     if (newCharList.length < 9) {
       ended = true;
     }
 
-    this.setState(({ charlist, offset }) => ({
-      charlist: [...charlist, ...newCharList],
-      loading: false,
-      newItemLoading: false,
-      offset: offset + 9,
-      charEnded: ended,
-    }));
+    setCharlist((charlist) => [...charlist, ...newCharList]);
+    setLoading(false);
+    setOffset((offset) => offset + 9);
+    setCharEnded(ended);
   };
 
-  onError = () => {
-    this.setState({ error: true, loading: false });
+  const onError = () => {
+    setLoading(false);
+    setError(true);
   };
 
-  renderItems = (arr) => {
+  const renderItems = (arr) => {
     if (arr.length >= 9) {
       return arr.map((item, index) => {
         let cover = { objectFit: "cover" };
@@ -94,18 +83,18 @@ class CharList extends Component {
         }
         return (
           <li
-            ref={this.setRef}
+            ref={(el) => (refsArr.current[index] = el)}
             tabIndex={0}
             key={item.id}
             className="char__item"
             onClick={() => {
-              this.props.onCharSelected(item.id);
-              this.focusElement(index);
+              onCharSelected(item.id);
+              focusElement(index);
             }}
             onKeyPress={(e) => {
               if (e.key === "Enter") {
-                this.props.onCharSelected(item.id);
-                this.focusElement(index);
+                onCharSelected(item.id);
+                focusElement(index);
               }
             }}
           >
@@ -119,40 +108,36 @@ class CharList extends Component {
     }
   };
 
-  render() {
-    const { charlist, loading, error, newItemLoading, charEnded } = this.state;
-    const errorMessage = error ? (
-      <li className="char__item" style={{ gridColumnStart: 2, height: 200 }}>
-        <ErrorMessage />
-      </li>
-    ) : null;
-    const spinner = loading ? <Spinner /> : null;
-    const content =
-      !loading && !error && charlist.length > 8 ? (
-        this.renderItems(charlist)
-      ) : (
-        <Spinner />
-      );
-
-    return (
-      <div className="char__list">
-        <ul className="char__grid">
-          {errorMessage}
-          {spinner}
-          {content}
-        </ul>
-        <button
-          style={charEnded ? { display: "none" } : { display: "block" }}
-          // onClick={() => this.onRequest(offset)}
-          disabled={newItemLoading}
-          className="button button__main button__long"
-        >
-          <div className="inner">{error ? "ERROR" : "load more"}</div>
-        </button>
-      </div>
+  const errorMessage = error ? (
+    <li className="char__item" style={{ gridColumnStart: 2, height: 200 }}>
+      <ErrorMessage />
+    </li>
+  ) : null;
+  const spinner = loading ? <Spinner /> : null;
+  const content =
+    !loading && !error && charlist.length > 8 ? (
+      renderItems(charlist)
+    ) : (
+      <Spinner />
     );
-  }
-}
+
+  return (
+    <div className="char__list">
+      <ul className="char__grid">
+        {errorMessage}
+        {spinner}
+        {content}
+      </ul>
+      <button
+        style={charEnded ? { display: "none" } : { display: "block" }}
+        disabled={newItemLoading}
+        className="button button__main button__long"
+      >
+        <div className="inner">{error ? "ERROR" : "load more"}</div>
+      </button>
+    </div>
+  );
+};
 
 CharList.propTypes = {
   onCharSelected: PropTypes.func,
