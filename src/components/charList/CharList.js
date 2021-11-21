@@ -46,8 +46,7 @@ const CharList = ({ onCharSelected }) => {
     refsArr.current[index].focus();
   };
 
-  const onRequest = (offset, initial) => {
-    // initial ? setNewItemLoading(false) : setNewItemLoading(true);
+  const onRequest = (offset) => {
     getAllCharacters(offset).then(onCharListLoaded);
   };
 
