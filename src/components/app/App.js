@@ -4,6 +4,7 @@ import AppHeader from "../appHeader/AppHeader";
 import MainPage from "../../pages/MainPage";
 import ComicsPage from "../../pages/ComicsPage";
 import Page404 from "../../pages/Page404/Page404";
+import SingleComicPage from "../../pages/SingleComicPage/SingleComicPage";
 
 const App = () => {
   return (
@@ -14,6 +15,7 @@ const App = () => {
           <Routes>
             <Route path="/" element={<MainPage />} />
             <Route path="/comics" element={<ComicsPage />} />
+            <Route path="/comics/:comicId" element={<SingleComicPage />} />
             <Route path="*" element={<Page404 />} />
           </Routes>
         </main>

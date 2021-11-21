@@ -10,6 +10,7 @@ const useMarvelService = () => {
     const res = await request(
       `${_apiBase}characters?limit=9&offset=${offset}&${process.env.REACT_APP_API_KEY}`
     );
+
     return res.data.results.map(_transformCharacter);
   };
 
@@ -18,6 +19,13 @@ const useMarvelService = () => {
       `${_apiBase}characters/${id}?${process.env.REACT_APP_API_KEY}`
     );
     return _transformCharacter(res.data.results[0]);
+  };
+
+  const getComic = async (id) => {
+    const res = await request(
+      `${_apiBase}comics/${id}?${process.env.REACT_APP_API_KEY}`
+    );
+    return _transformComics(res.data.results[0]);
   };
 
   const getComics = async (offset = _baseOffset) => {
@@ -32,12 +40,17 @@ const useMarvelService = () => {
     return {
       id: comics.id,
       name: comics.title,
+      description: comics.description || "Description unavaliable",
+      pages: comics.pageCount,
+      language: comics.textObjects.language || "en-us",
       image:
         comics.images.length > 0
           ? comics.images[0].path + "." + comics.images[0].extension
           : `https://i.annihil.us/u/prod/marvel/i/mg/b/40/image_not_available/clean.jpg`,
       homepage: comics.urls[0].url,
-      price: comics.prices[0].price,
+      price: comics.prices[0].price
+        ? `${comics.prices[0].price}$`
+        : "not available",
     };
   };
 
@@ -63,6 +76,7 @@ const useMarvelService = () => {
     getCharacter,
     clearError,
     getComics,
+    getComic,
   };
 };
 
