@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import PropTypes from "prop-types";
+import { CSSTransition, TransitionGroup } from "react-transition-group";
 
 import useMarvelService from "../../services/MarvelService";
 import Spinner from "../spinner/Spinner";
@@ -59,23 +60,30 @@ const CharList = ({ onCharSelected }) => {
     setCharlist((charlist) => [...charlist, ...newCharList]);
     setOffset((offset) => offset + 9);
     setCharEnded(ended);
+    if (loading) return;
   };
 
   const renderItems = (arr) => {
-    if (arr.length >= 9) {
-      return arr.map((item, index) => {
-        let cover = { objectFit: "cover" };
-        if (
-          item.thumbnail ===
-          "http://i.annihil.us/u/prod/marvel/i/mg/b/40/image_not_available.jpg"
-        ) {
-          cover = { objectFit: "unset" };
-        }
-        return (
+    const items = arr.map((item, index) => {
+      let cover = { objectFit: "cover" };
+      if (
+        item.thumbnail ===
+        "http://i.annihil.us/u/prod/marvel/i/mg/b/40/image_not_available.jpg"
+      ) {
+        cover = { objectFit: "unset" };
+      }
+
+      return (
+        <CSSTransition
+          key={item.id}
+          timeout={500}
+          classNames="char__item"
+          mountOnEnter
+          unmountOnExit
+        >
           <li
             ref={(el) => (refsArr.current[index] = el)}
             tabIndex={0}
-            key={item.id}
             className="char__item"
             onClick={() => {
               onCharSelected(item.id);
@@ -91,11 +99,15 @@ const CharList = ({ onCharSelected }) => {
             <img style={cover} src={item.thumbnail} alt={item.name} />
             <div className="char__name">{item.name}</div>
           </li>
-        );
-      });
-    } else {
-      return;
-    }
+        </CSSTransition>
+      );
+    });
+
+    return (
+      <ul className="char__grid">
+        <TransitionGroup component={null}>{items}</TransitionGroup>
+      </ul>
+    );
   };
 
   const errorMessage = error ? (
@@ -108,11 +120,10 @@ const CharList = ({ onCharSelected }) => {
 
   return (
     <div className="char__list">
-      <ul className="char__grid">
-        {errorMessage}
-        {spinner}
-        {items}
-      </ul>
+      {errorMessage}
+      {spinner}
+      {items}
+
       <button
         style={charEnded ? { display: "none" } : { display: "block" }}
         disabled={newItemLoading}
