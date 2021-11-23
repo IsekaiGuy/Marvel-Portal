@@ -69,6 +69,15 @@ const useMarvelService = () => {
     };
   };
 
+  const getCharacterByName = async (name) => {
+    if (!name) return;
+    const res = await request(
+      `${_apiBase}characters?nameStartsWith=${name}&${process.env.REACT_APP_API_KEY}`
+    );
+
+    return res.data.results.map(_transformCharacter);
+  };
+
   return {
     loading,
     error,
@@ -77,6 +86,7 @@ const useMarvelService = () => {
     clearError,
     getComics,
     getComic,
+    getCharacterByName,
   };
 };
 

@@ -4,6 +4,7 @@ import ErrorBoundary from "../components/errorBoundary/ErrorBoundary";
 import RandomChar from "../components/randomChar/RandomChar";
 import CharList from "../components/charList/CharList";
 import CharInfo from "../components/charInfo/CharInfo";
+import CharSearchForm from "../components/charSearchForm/CharSearchForm";
 
 import decoration from "../resources/img/vision.png";
 
@@ -24,7 +25,15 @@ const MainPage = () => {
           <CharList onCharSelected={onCharSelected} />
         </ErrorBoundary>
         <ErrorBoundary>
-          <CharInfo selectedChar={selectedChar} />
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+            }}
+          >
+            <CharInfo selectedChar={selectedChar} />
+            <CharSearchForm />
+          </div>
         </ErrorBoundary>
       </div>
       <img className="bg-decoration" src={decoration} alt="vision" />
