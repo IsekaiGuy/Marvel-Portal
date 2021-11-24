@@ -1,6 +1,7 @@
 import { CSSTransition } from "react-transition-group";
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
+import { Helmet } from "react-helmet";
 
 import "./singleComicPage.scss";
 
@@ -15,6 +16,11 @@ const SingleComicPage = ({ data }) => {
 
   return (
     <div className="single-comic">
+      <Helmet>
+        <meta name="description" content={`${name} comicbook`} />
+        <title>{name}</title>
+      </Helmet>
+
       <CSSTransition
         in={state}
         timeout={800}

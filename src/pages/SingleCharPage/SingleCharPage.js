@@ -1,5 +1,6 @@
 import { CSSTransition } from "react-transition-group";
 import { useState, useEffect } from "react";
+import { Helmet } from "react-helmet";
 
 import "./singleCharPage.scss";
 
@@ -13,6 +14,10 @@ const SingleCharPage = ({ data }) => {
 
   return (
     <div className="single-char">
+      <Helmet>
+        <meta name="description" content={`${name} Marvel character`} />
+        <title>{name}</title>
+      </Helmet>
       <CSSTransition
         in={state}
         timeout={1000}
