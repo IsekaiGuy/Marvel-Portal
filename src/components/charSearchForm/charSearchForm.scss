@@ -34,6 +34,11 @@
     font-weight: bold;
     font-size: 18px;
     line-height: 24px;
+
+    &-failed {
+      color: #e53e3e;
+      margin-top: 15px;
+    }
   }
 
   &__label {
@@ -60,5 +65,8 @@
 
 .error {
   color: #e53e3e;
-  margin-top: 30px;
+  margin-top: 15px;
+  font-weight: bold;
+  font-size: 18px;
+  line-height: 24px;
 }
