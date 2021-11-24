@@ -50,6 +50,10 @@ const RandomChar = () => {
 
 const View = ({ char, error }) => {
   const { name, description, thumbnail, homepage, wiki } = char;
+  const validatedDescription =
+    description && description.length > 200
+      ? description.slice(0, 200) + "(...)"
+      : description;
 
   return (
     <div className="randomchar__block">
@@ -65,7 +69,9 @@ const View = ({ char, error }) => {
       <div className="randomchar__info">
         <p className="randomchar__name">{error ? "ERROR" : name}</p>
         <p className="randomchar__descr">
-          {error ? "Sorry, got an error, please, try again" : description}
+          {error
+            ? "Sorry, got an error, please, try again"
+            : validatedDescription}
         </p>
         <div className="randomchar__btns">
           <a href={homepage} className="button button__main">

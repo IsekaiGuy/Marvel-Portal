@@ -32,7 +32,10 @@ const CharList = ({ onCharSelected }) => {
 
   useEffect(() => {
     if (offset >= 219) window.addEventListener("scroll", onScroll);
-    else return;
+
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+    };
   }, [offset]);
 
   useEffect(() => {
