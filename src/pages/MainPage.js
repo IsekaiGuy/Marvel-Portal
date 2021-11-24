@@ -24,17 +24,20 @@ const MainPage = () => {
         <ErrorBoundary>
           <CharList onCharSelected={onCharSelected} />
         </ErrorBoundary>
-        <ErrorBoundary>
-          <div
-            style={{
-              display: "flex",
-              flexDirection: "column",
-            }}
-          >
+
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "column",
+          }}
+        >
+          <ErrorBoundary>
             <CharInfo selectedChar={selectedChar} />
+          </ErrorBoundary>
+          <ErrorBoundary>
             <CharSearchForm />
-          </div>
-        </ErrorBoundary>
+          </ErrorBoundary>
+        </div>
       </div>
       <img className="bg-decoration" src={decoration} alt="vision" />
     </>

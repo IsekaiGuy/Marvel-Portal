@@ -28,6 +28,7 @@ const CharList = ({ onCharSelected }) => {
 
   useEffect(() => {
     onRequest();
+    //eslint-disable-next-line
   }, []);
 
   useEffect(() => {
@@ -36,6 +37,7 @@ const CharList = ({ onCharSelected }) => {
     return () => {
       window.removeEventListener("scroll", onScroll);
     };
+    //eslint-disable-next-line
   }, [offset]);
 
   useEffect(() => {
@@ -43,6 +45,7 @@ const CharList = ({ onCharSelected }) => {
       setNewItemLoading(false);
       onRequest(offset);
     }
+    //eslint-disable-next-line
   }, [newItemLoading]);
 
   const focusElement = (index) => {

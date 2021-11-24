@@ -1,5 +1,5 @@
 import { useParams } from "react-router-dom";
-import { useState, useEffect } from "react/cjs/react.development";
+import { useState, useEffect } from "react";
 
 import AppBanner from "../components/appBanner/AppBanner";
 import useMarvelService from "../services/MarvelService";
@@ -16,6 +16,7 @@ const SinglePage = ({ Component, dataType }) => {
 
   useEffect(() => {
     updateData();
+    //eslint-disable-next-line
   }, [id]);
 
   const updateData = () => {

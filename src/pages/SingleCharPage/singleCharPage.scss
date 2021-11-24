@@ -18,4 +18,44 @@
     line-height: 24px;
     margin-top: 25px;
   }
+
+  &__info {
+    &-enter {
+      opacity: 0;
+      transform: translateX(1000px);
+    }
+    &-enter-active {
+      opacity: 1;
+      transform: translateX(0);
+      transition: all 1000ms ease-in;
+    }
+
+    &-exit {
+      opacity: 1;
+      transform: translateX(0);
+    }
+    &-exit-active {
+      opacity: 0;
+      transform: translateX(1000px);
+    }
+  }
+
+  &-enter {
+    opacity: 0;
+    transform: translateX(-1000px);
+  }
+  &-enter-active {
+    opacity: 1;
+    transform: translateX(0);
+    transition: all 1000ms ease-in;
+  }
+
+  &-exit {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  &-exit-active {
+    opacity: 0;
+    transform: translateX(-1000px);
+  }
 }
