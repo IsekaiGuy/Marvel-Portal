@@ -1,4 +1,4 @@
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 
 import AppBanner from "../components/appBanner/AppBanner";
@@ -8,6 +8,7 @@ import Spinner from "../components/spinner/Spinner";
 
 const SinglePage = ({ Component, dataType }) => {
   const [data, setData] = useState(null);
+  let navigate = useNavigate();
 
   const { loading, error, getComic, getCharacter, clearError } =
     useMarvelService();
@@ -22,8 +23,14 @@ const SinglePage = ({ Component, dataType }) => {
   const updateData = () => {
     clearError();
 
-    if (dataType === "comics") getComic(id).then(onDataLoaded);
-    if (dataType === "character") getCharacter(id).then(onDataLoaded);
+    if (dataType === "comics")
+      getComic(id)
+        .then(onDataLoaded)
+        .catch(navigate("/404", { replace: true }));
+    if (dataType === "character")
+      getCharacter(id)
+        .then(onDataLoaded)
+        .catch(navigate("/404", { replace: true }));
   };
 
   const onDataLoaded = (data) => {
