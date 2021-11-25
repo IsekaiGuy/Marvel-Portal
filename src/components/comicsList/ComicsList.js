@@ -72,7 +72,15 @@ const ComicsList = () => {
 
   return (
     <div className="comics__list">
-      <ul className="comics__grid">
+      <ul
+        className="comics__grid"
+        style={
+          (condition === "loading" || condition === "error") &&
+          comicsList.length < 1
+            ? { display: "flex", justifyContent: "center" }
+            : null
+        }
+      >
         {setContent(condition, () => renderComics(), newItemLoading)}
       </ul>
       <button

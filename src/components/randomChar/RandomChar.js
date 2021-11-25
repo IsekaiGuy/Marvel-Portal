@@ -1,4 +1,6 @@
 import { useState, useEffect } from "react";
+import { CSSTransition } from "react-transition-group";
+
 import useMarvelService from "../../services/MarvelService";
 import setContent from "../../utils/setContent";
 
@@ -7,6 +9,8 @@ import "./randomChar.scss";
 
 const RandomChar = () => {
   const [char, setChar] = useState({});
+  const [charLoaded, setCharLoaded] = useState(false);
+
   const { condition, setCondition, getCharacter, clearError } =
     useMarvelService();
 
@@ -21,6 +25,7 @@ const RandomChar = () => {
 
   const updateChar = () => {
     clearError();
+    setCharLoaded(true);
     const id = Math.floor(Math.random() * (1011400 - 1011000) + 1011000);
 
     getCharacter(id)
@@ -31,18 +36,25 @@ const RandomChar = () => {
   return (
     <div className="randomchar">
       {setContent(condition, View, char)}
-      <div className="randomchar__static">
-        <p className="randomchar__title">
-          Random character for today!
-          <br />
-          Do you want to get to know him better?
-        </p>
-        <p className="randomchar__title">Or choose another one</p>
-        <button onClick={updateChar} className="button button__main">
-          <div className="inner">try it</div>
-        </button>
-        <img src={mjolnir} alt="mjolnir" className="randomchar__decoration" />
-      </div>
+      <CSSTransition
+        in={charLoaded}
+        timeout={800}
+        classNames="randomchar__static"
+        mountOnEnter
+      >
+        <div className="randomchar__static">
+          <p className="randomchar__title">
+            Random character for today!
+            <br />
+            Do you want to get to know him better?
+          </p>
+          <p className="randomchar__title">Or choose another one</p>
+          <button onClick={updateChar} className="button button__main">
+            <div className="inner">try it</div>
+          </button>
+          <img src={mjolnir} alt="mjolnir" className="randomchar__decoration" />
+        </div>
+      </CSSTransition>
     </div>
   );
 };

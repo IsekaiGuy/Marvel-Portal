@@ -1,9 +1,6 @@
 @import "../../style/variables.scss";
 
 .app {
-  &.active {
-    color: red;
-  }
   &__header {
     display: flex;
     justify-content: space-between;
@@ -31,4 +28,8 @@
       }
     }
   }
+}
+
+.active {
+  color: $main-color;
 }

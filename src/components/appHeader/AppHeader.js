@@ -1,8 +1,20 @@
-import { Link, NavLink } from "react-router-dom";
+import { Link, NavLink, useLocation } from "react-router-dom";
+import { useState, useEffect } from "react";
 
 import "./appHeader.scss";
 
 const AppHeader = () => {
+  const [state, setState] = useState(null);
+  const { pathname } = useLocation();
+
+  useEffect(() => {
+    if (pathname.includes("comics")) {
+      setState(false);
+    } else {
+      setState(true);
+    }
+  }, [pathname]);
+
   return (
     <header className="app__header">
       <h1 className="app__title">
@@ -13,23 +25,13 @@ const AppHeader = () => {
       <nav className="app__menu">
         <ul>
           <li>
-            <NavLink
-              style={({ isActive }) => ({
-                color: isActive ? "#9F0013" : "black",
-              })}
-              to="/"
-            >
+            <NavLink className={state ? "active" : ""} to="/characters">
               Characters
             </NavLink>
           </li>
           /
           <li>
-            <NavLink
-              style={({ isActive }) => ({
-                color: isActive ? "#9F0013" : "black",
-              })}
-              to="/comics"
-            >
+            <NavLink className={!state ? "active" : ""} to="/comics">
               Comics
             </NavLink>
           </li>
