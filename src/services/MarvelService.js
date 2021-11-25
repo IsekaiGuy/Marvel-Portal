@@ -4,11 +4,11 @@ const useMarvelService = () => {
   const _apiBase = "https://gateway.marvel.com:443/v1/public/";
   const _baseOffset = 210;
 
-  const { loading, request, error, clearError } = useHttp();
+  const { request, clearError, condition, setCondition } = useHttp();
 
   const getAllCharacters = async (offset = _baseOffset) => {
     const res = await request(
-      `${_apiBase}characters?limit=9&offset=${offset}&${process.env.REACT_APP_API_KEY}`
+      `${_apiBase}charactes?limit=9&offset=${offset}&${process.env.REACT_APP_API_KEY}`
     );
 
     return res.data.results.map(_transformCharacter);
@@ -76,14 +76,14 @@ const useMarvelService = () => {
   };
 
   return {
-    loading,
-    error,
     getAllCharacters,
     getCharacter,
     clearError,
     getComics,
     getComic,
     getCharacterByName,
+    condition,
+    setCondition,
   };
 };
 

@@ -3,14 +3,13 @@ import { useState, useEffect } from "react";
 
 import AppBanner from "../components/appBanner/AppBanner";
 import useMarvelService from "../services/MarvelService";
-import ErrorMessage from "../components/errorMessage/errorMessage";
-import Spinner from "../components/spinner/Spinner";
+import setContent from "../utils/setContent";
 
 const SinglePage = ({ Component, dataType }) => {
   const [data, setData] = useState(null);
   let navigate = useNavigate();
 
-  const { loading, error, getComic, getCharacter, clearError } =
+  const { condition, setCondition, getComic, getCharacter, clearError } =
     useMarvelService();
 
   const { id } = useParams();
@@ -26,11 +25,13 @@ const SinglePage = ({ Component, dataType }) => {
     if (dataType === "comics")
       getComic(id)
         .then(onDataLoaded)
-        .catch(navigate("/404", { replace: true }));
+        .then(() => setCondition("confirmed"))
+        .catch((err) => (err ? navigate("/404", { replace: true }) : null));
     if (dataType === "character")
       getCharacter(id)
         .then(onDataLoaded)
-        .catch(navigate("/404", { replace: true }));
+        .then(() => setCondition("confirmed"))
+        .catch((err) => (err ? navigate("/404", { replace: true }) : null));
   };
 
   const onDataLoaded = (data) => {
@@ -38,17 +39,10 @@ const SinglePage = ({ Component, dataType }) => {
     setData(data);
   };
 
-  const errorMessage = error ? <ErrorMessage /> : null;
-  const spinner = loading ? <Spinner /> : null;
-  const content =
-    (!loading || !error) && data ? <Component data={data} /> : null;
-
   return (
     <>
       <AppBanner />
-      {errorMessage}
-      {spinner}
-      {content}
+      {setContent(condition, Component, data)}
     </>
   );
 };

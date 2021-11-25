@@ -3,16 +3,15 @@ import { Link } from "react-router-dom";
 import PropTypes from "prop-types";
 
 import useMarvelService from "../../services/MarvelService";
-import Spinner from "../spinner/Spinner";
-import ErrorMessage from "../errorMessage/errorMessage";
-import Skeleton from "../skeleton/Skeleton";
+import setContent from "../../utils/setContent";
 
 import "./charInfo.scss";
 
 const CharInfo = ({ selectedChar }) => {
   const [char, setChar] = useState(null);
 
-  const { loading, error, getCharacter, clearError } = useMarvelService();
+  const { getCharacter, clearError, condition, setCondition } =
+    useMarvelService();
 
   useEffect(() => {
     updateChar(selectedChar);
@@ -24,30 +23,22 @@ const CharInfo = ({ selectedChar }) => {
     setChar(null);
 
     clearError();
-    getCharacter(id).then(onCharLoaded);
+    getCharacter(id)
+      .then(onCharLoaded)
+      .then(() => setCondition("confirmed"));
   };
 
   const onCharLoaded = (char) => {
     setChar(char);
   };
 
-  const skeleton = char || loading || error ? null : <Skeleton />;
-  const errorMessage = error ? <ErrorMessage /> : null;
-  const spinner = loading ? <Spinner /> : null;
-  const content = (!loading || !error) && char ? <View char={char} /> : null;
-
   return (
-    <aside className="char__info">
-      {errorMessage}
-      {spinner}
-      {skeleton}
-      {content}
-    </aside>
+    <aside className="char__info">{setContent(condition, View, char)}</aside>
   );
 };
 
-const View = ({ char }) => {
-  const { name, thumbnail, description, homepage, wiki, comics } = char;
+const View = ({ data }) => {
+  const { name, thumbnail, description, homepage, wiki, comics } = data;
   let cover = { objectFit: "cover" };
   if (
     thumbnail ===

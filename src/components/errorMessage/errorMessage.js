@@ -1,7 +1,11 @@
-import img from "./error.gif";
+import img from "../../resources/img/error.gif";
 
 const ErrorMessage = () => {
-  return <img src={img} alt="Sorry, got an Error" />;
+  return (
+    <div style={{ display: "flex", justifyContent: "center" }}>
+      <img src={img} alt="Sorry, got an Error" />
+    </div>
+  );
 };
 
 export default ErrorMessage;

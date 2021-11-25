@@ -8,17 +8,36 @@ import ErrorMessage from "../errorMessage/errorMessage";
 
 import "./charSearchForm.scss";
 
+const setContent = (condition, Component, charsLoaded) => {
+  switch (condition) {
+    case "waiting":
+      return null;
+
+    case "error":
+      return <ErrorMessage />;
+
+    case "loading":
+      return charsLoaded ? <Component /> : null;
+
+    case "confirmed":
+      return <Component />;
+
+    default:
+      throw new Error("Unexpected proccess state");
+  }
+};
+
 const CharSearchForm = () => {
   const [charNames, setCharNames] = useState([]);
   const [showNameList, setShowNameList] = useState(false);
   const [charsLoaded, setCharsLoaded] = useState(null);
 
-  const { loading, error, getCharacterByName, clearError } = useMarvelService();
+  const { condition, setCondition, getCharacterByName, clearError } =
+    useMarvelService();
 
   const onCharLoaded = (char) => {
     if (char.length < 1) {
       setCharsLoaded(false);
-      console.log(charsLoaded);
     } else {
       setCharsLoaded(true);
       setCharNames(char);
@@ -28,12 +47,13 @@ const CharSearchForm = () => {
   const updateChar = (name) => {
     clearError();
 
-    getCharacterByName(name).then(onCharLoaded);
+    getCharacterByName(name)
+      .then(onCharLoaded)
+      .then(() => setCondition("confirmed"));
   };
 
-  const FoundedCharsView = () => {
+  const View = () => {
     const items = renderCharList();
-
     return (
       <>
         {charsLoaded ? (
@@ -76,10 +96,6 @@ const CharSearchForm = () => {
     });
   };
 
-  const errorMessage = error ? <ErrorMessage /> : null;
-  const results =
-    !error && !loading && charsLoaded !== null ? <FoundedCharsView /> : null;
-
   return (
     <div className="char-search">
       <Formik
@@ -108,7 +124,7 @@ const CharSearchForm = () => {
             <button
               type="submit"
               className="button button__main"
-              disabled={loading}
+              disabled={condition === "loading" ? true : false}
             >
               <div className="inner">FIND</div>
             </button>
@@ -116,8 +132,7 @@ const CharSearchForm = () => {
           <FormikError className="error" name="charName" component="div" />
         </Form>
       </Formik>
-      {errorMessage}
-      {results}
+      {setContent(condition, View, charsLoaded)}
     </div>
   );
 };

@@ -1,6 +1,5 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import PropTypes from "prop-types";
-import { CSSTransition, TransitionGroup } from "react-transition-group";
 
 import useMarvelService from "../../services/MarvelService";
 import Spinner from "../spinner/Spinner";
@@ -8,15 +7,33 @@ import ErrorMessage from "../errorMessage/errorMessage";
 
 import "./charList.scss";
 
-const CharList = ({ onCharSelected }) => {
-  const refsArr = useRef([]);
-  const { loading, error, getAllCharacters } = useMarvelService();
+const setContent = (condition, Component, newItemLoading) => {
+  switch (condition) {
+    case "waiting":
+      return <Spinner />;
 
-  // STATES
+    case "error":
+      return <ErrorMessage />;
+
+    case "loading":
+      return newItemLoading ? <Component /> : <Spinner />;
+
+    case "confirmed":
+      return <Component />;
+
+    default:
+      throw new Error("Unexpected proccess state");
+  }
+};
+
+const CharList = ({ onCharSelected }) => {
   const [charlist, setCharlist] = useState([]);
   const [newItemLoading, setNewItemLoading] = useState(false);
   const [offset, setOffset] = useState(210);
   const [charEnded, setCharEnded] = useState(false);
+
+  const { getAllCharacters, condition, setCondition } = useMarvelService();
+  const refsArr = useRef([]);
 
   const onScroll = () => {
     if (window.innerHeight + window.scrollY >= document.body.offsetHeight) {
@@ -42,7 +59,6 @@ const CharList = ({ onCharSelected }) => {
 
   useEffect(() => {
     if (newItemLoading) {
-      setNewItemLoading(false);
       onRequest(offset);
     }
     //eslint-disable-next-line
@@ -54,7 +70,10 @@ const CharList = ({ onCharSelected }) => {
   };
 
   const onRequest = (offset) => {
-    getAllCharacters(offset).then(onCharListLoaded);
+    getAllCharacters(offset)
+      .then(onCharListLoaded)
+      .then(() => setCondition("confirmed"))
+      .then(() => window.scrollTo(0, window.scrollY - 100));
   };
 
   const onCharListLoaded = (newCharList) => {
@@ -66,7 +85,7 @@ const CharList = ({ onCharSelected }) => {
     setCharlist((charlist) => [...charlist, ...newCharList]);
     setOffset((offset) => offset + 9);
     setCharEnded(ended);
-    if (loading) return;
+    setNewItemLoading(false);
   };
 
   const renderItems = (arr) => {
@@ -80,62 +99,48 @@ const CharList = ({ onCharSelected }) => {
       }
 
       return (
-        <CSSTransition
-          key={item.id}
-          timeout={500}
-          classNames="char__item"
-          mountOnEnter
-          unmountOnExit
-        >
-          <li
-            ref={(el) => (refsArr.current[index] = el)}
-            tabIndex={0}
-            className="char__item"
-            onClick={() => {
+        <li
+          key={index}
+          ref={(el) => (refsArr.current[index] = el)}
+          tabIndex={0}
+          className="char__item"
+          onClick={() => {
+            onCharSelected(item.id);
+            focusElement(index);
+          }}
+          onKeyPress={(e) => {
+            if (e.key === "Enter") {
               onCharSelected(item.id);
               focusElement(index);
-            }}
-            onKeyPress={(e) => {
-              if (e.key === "Enter") {
-                onCharSelected(item.id);
-                focusElement(index);
-              }
-            }}
-          >
-            <img style={cover} src={item.thumbnail} alt={item.name} />
-            <div className="char__name">{item.name}</div>
-          </li>
-        </CSSTransition>
+            }
+          }}
+        >
+          <img style={cover} src={item.thumbnail} alt={item.name} />
+          <div className="char__name">{item.name}</div>
+        </li>
       );
     });
 
-    return (
-      <ul className="char__grid">
-        <TransitionGroup component={null}>{items}</TransitionGroup>
-      </ul>
-    );
+    return <ul className="char__grid">{items}</ul>;
   };
 
-  const errorMessage = error ? (
-    <li className="char__item" style={{ gridColumnStart: 2, height: 200 }}>
-      <ErrorMessage />
-    </li>
-  ) : null;
-  const spinner = loading && !newItemLoading ? <Spinner /> : null;
-  const items = renderItems(charlist);
+  const memoizedContent = useMemo(() => {
+    return setContent(condition, () => renderItems(charlist), newItemLoading);
+    //eslint-disable-next-line
+  }, [condition]);
 
   return (
     <div className="char__list">
-      {errorMessage}
-      {spinner}
-      {items}
+      {memoizedContent}
 
       <button
         style={charEnded ? { display: "none" } : { display: "block" }}
         disabled={newItemLoading}
         className="button button__main button__long"
       >
-        <div className="inner">{error ? "ERROR" : "load more"}</div>
+        <div className="inner">
+          {condition === "error" ? "ERROR" : "load more"}
+        </div>
       </button>
     </div>
   );

@@ -1,14 +1,14 @@
 import { useState, useEffect } from "react";
 import useMarvelService from "../../services/MarvelService";
-import Spinner from "../spinner/Spinner";
-import ErrorMessage from "../errorMessage/errorMessage";
+import setContent from "../../utils/setContent";
 
 import mjolnir from "../../resources/img/mjolnir.png";
 import "./randomChar.scss";
 
 const RandomChar = () => {
   const [char, setChar] = useState({});
-  const { loading, error, getCharacter, clearError } = useMarvelService();
+  const { condition, setCondition, getCharacter, clearError } =
+    useMarvelService();
 
   useEffect(() => {
     updateChar();
@@ -23,16 +23,14 @@ const RandomChar = () => {
     clearError();
     const id = Math.floor(Math.random() * (1011400 - 1011000) + 1011000);
 
-    getCharacter(id).then(onCharLoaded);
+    getCharacter(id)
+      .then(onCharLoaded)
+      .then(() => setCondition("confirmed"));
   };
-
-  const spinner = loading ? <Spinner /> : null;
-  const content = !loading ? <View char={char} error={error} /> : null;
 
   return (
     <div className="randomchar">
-      {spinner}
-      {content}
+      {setContent(condition, View, char)}
       <div className="randomchar__static">
         <p className="randomchar__title">
           Random character for today!
@@ -49,8 +47,8 @@ const RandomChar = () => {
   );
 };
 
-const View = ({ char, error }) => {
-  const { name, description, thumbnail, homepage, wiki } = char;
+const View = ({ data }) => {
+  const { name, description, thumbnail, homepage, wiki } = data;
   const validatedDescription =
     description && description.length > 200
       ? description.slice(0, 200) + "(...)"
@@ -58,28 +56,16 @@ const View = ({ char, error }) => {
 
   return (
     <div className="randomchar__block">
-      {error ? (
-        <ErrorMessage />
-      ) : (
-        <img
-          src={thumbnail}
-          alt="Random character"
-          className="randomchar__img"
-        />
-      )}
+      <img src={thumbnail} alt="Random character" className="randomchar__img" />
       <div className="randomchar__info">
-        <p className="randomchar__name">{error ? "ERROR" : name}</p>
-        <p className="randomchar__descr">
-          {error
-            ? "Sorry, got an error, please, try again"
-            : validatedDescription}
-        </p>
+        <p className="randomchar__name">{name}</p>
+        <p className="randomchar__descr">{validatedDescription}</p>
         <div className="randomchar__btns">
           <a href={homepage} className="button button__main">
-            <div className="inner">{error ? "error" : "homepage"}</div>
+            <div className="inner">Homepage</div>
           </a>
           <a href={wiki} className="button button__secondary">
-            <div className="inner">{error ? "error" : "Wiki"}</div>
+            <div className="inner">Wiki</div>
           </a>
         </div>
       </div>

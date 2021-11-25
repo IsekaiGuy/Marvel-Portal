@@ -7,24 +7,48 @@ import useMarvelService from "../../services/MarvelService";
 import Spinner from "../spinner/Spinner";
 import ErrorMessage from "../errorMessage/errorMessage";
 
+const setContent = (condition, Component, newItemLoading) => {
+  switch (condition) {
+    case "waiting":
+      return <Spinner />;
+
+    case "error":
+      return <ErrorMessage />;
+
+    case "loading":
+      return newItemLoading ? <Component /> : <Spinner />;
+
+    case "confirmed":
+      return <Component />;
+
+    default:
+      throw new Error("Unexpected proccess state");
+  }
+};
+
 const ComicsList = () => {
   const [comicsList, setComicsList] = useState([]);
   const [offset, setOffset] = useState(210);
+  const [newItemLoading, setNewItemLoading] = useState(false);
 
-  const { getComics, loading, error } = useMarvelService();
-
-  const onRequest = (offset) => {
-    getComics(offset).then(onComicsLoaded);
-  };
+  const { getComics, condition, setCondition } = useMarvelService();
 
   useEffect(() => {
-    onRequest();
+    onRequest(offset, true);
     //eslint-disable-next-line
   }, []);
+
+  const onRequest = (offset, initial) => {
+    initial ? setNewItemLoading(false) : setNewItemLoading(true);
+    getComics(offset)
+      .then(onComicsLoaded)
+      .then(() => setCondition("confirmed"));
+  };
 
   const onComicsLoaded = (newComicsList) => {
     setComicsList((comicsList) => [...comicsList, ...newComicsList]);
     setOffset((offset) => offset + 8);
+    setNewItemLoading(false);
   };
 
   const renderComics = () => {
@@ -46,26 +70,16 @@ const ComicsList = () => {
     });
   };
 
-  const items = renderComics();
-
-  const errorMessage = error ? (
-    <li style={{ gridColumnStart: 2, height: 200 }}>
-      <ErrorMessage />
-    </li>
-  ) : null;
-  const spinner = loading ? <Spinner /> : null;
-
   return (
     <div className="comics__list">
-      {spinner}
-
       <ul className="comics__grid">
-        {errorMessage}
-        {items}
+        {setContent(condition, () => renderComics(), newItemLoading)}
       </ul>
       <button
-        disabled={loading}
-        style={error ? { display: "none" } : { display: "block" }}
+        disabled={condition === "loading" ? true : false}
+        style={
+          condition === "error" ? { display: "none" } : { display: "block" }
+        }
         onClick={() => onRequest(offset)}
         className="button button__main button__long"
       >
