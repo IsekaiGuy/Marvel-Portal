@@ -6,7 +6,7 @@
 </p>
 
 <!-- ABOUT THE PROJECT -->
-![Alt text](/src/recources/img/Marvel.png?raw=true "Marvel")
+![Alt text](src/resources/img/Marvel.png?raw=true "Marvel")
 
 ## About Project
 <p>
