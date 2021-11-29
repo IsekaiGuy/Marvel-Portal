@@ -6,12 +6,12 @@
 </p>
 
 <!-- ABOUT THE PROJECT -->
-![Alt text](/src/recources/images/Marvel.png?raw=true "Marvel")
+![Alt text](/src/recources/img/Marvel.png?raw=true "Marvel")
 
 ## About Project
 <p>
-Pure JS app for searching recipes. To upload your own recipe, you need to create .env file in the root folder, get api key from https://forkify-api.herokuapp.com/v2, and then add it into .env file like this:
-API_KEY:your-key
+React app for searching information about Marvel heroes and comicbooks. Require an API key - you need to create .env file in the root folder, get api key from https://developer.marvel.com/, and then add it into .env file like this:
+REACT_APP_API_KEY = "your-key"
 </p>
 
 ## Getting Started
@@ -19,9 +19,9 @@ API_KEY:your-key
 Install npm first and run the project:
 
 ```sh
-  npm install
+  yarn 
 ```
 
 ```sh
-  npm start
+  yarn start
   ```
